@@ -1,0 +1,24 @@
+.errorWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    flex-direction: column;
+}
+
+.errorHeader {
+    color: #ea3943;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.errorBody {
+    font-size: 15px;
+    margin: 15px 0;
+} 
+
+.homeLink {
+    font-weight: bold;
+    color: #3861fb;
+    font-size: 15px;
+}
