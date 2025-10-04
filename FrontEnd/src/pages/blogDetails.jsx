@@ -21,8 +21,7 @@ const BlogDetails = () => {
   const username = useSelector(state=>state.user.username);
   const userId = useSelector(state=>state.user._id);
 
-  useEffect(()=>{
-    async function getBlogDetails() {
+  async function getBlogDetails() {
       const commentResponse = await getCommentById(blogId)
       if(commentResponse.status === 201){
         // ye phla wala data hmein axios say milta hay or dusra wala jo hay wo hmein backend say milta hay
@@ -35,13 +34,16 @@ const BlogDetails = () => {
         setOwnsBlog(username === blogResponse.data.data.authorUsername)
         setblogDetail(blogResponse.data.data)
       }
-    }getBlogDetails();
-  },[reload]) 
+    }
+
+  useEffect(()=>{
+    getBlogDetails();
+  },[comment]) 
   
   const handleChange = (e) => {
     setNewComment(e.target.value)
   }
-
+  // ahsan
   const postCommentHandler = async () => {
     const data = {
       author:userId,
@@ -50,8 +52,8 @@ const BlogDetails = () => {
     }
     const resp = await commentData(data);
     if(resp.status === 201){
-      setNewComment("");  
-      setReload(!reload)
+      setComment(resp.data.FindComment);
+      setNewComment("");
     }
   }
 

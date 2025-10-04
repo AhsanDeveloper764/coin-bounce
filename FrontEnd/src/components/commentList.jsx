@@ -13,8 +13,12 @@ const CommentList = ({comments}) => {
           <p className={styles.noComments}>No Comments Posted</p>
         </div>
         ) : 
-        comments.map((comment)=>{
-            return <Comment key={comment._id} comments={comment} />
+        comments.map((comment,i)=>{
+            return (
+            <div key={i} >
+              <Comment comments={comment} />
+            </div>
+            )
         })
       }
       </div>
