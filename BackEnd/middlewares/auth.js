@@ -20,7 +20,7 @@ const auth = async (req,resp,next) => {
            //  _id kahan se aati hai?
            //  Jab aap user login / signup karte ho aur usko JWT token generate karke dete ho, tab aap us token ke 
            //  andar user ki kuch info encode (sign) karte ho.
-           // jwt service file ma jo payload hay basically token kay andaar ye payload hamara data hay jo encode hua wa hay
+           //  jwt service file ma jo payload hay basically token kay andaar ye payload hamara data hay jo encode hua wa hay
         }catch(error){
             return next(error)
         }

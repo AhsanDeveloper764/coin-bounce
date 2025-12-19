@@ -23,7 +23,6 @@ const authController = {
         if(error){
             return next(error)
         }
-
         // if email or username is already registered ---> return an error
         const {username,name,email,password} = req.body;
         try{
@@ -47,16 +46,13 @@ const authController = {
         }catch(error){
             return next(error);
         }
-
         // Password Hashing
         // Password ko hash karke save karte hain (plain text kabhi store nahi karna).
         const HashedPassword = await bcrypt.hash(password,10); //10 ka mtlb sorting round
-
         // store user data in database
         let accessToken;
         let refreshToken;
         let data;
-
         // New user DB mai save hota hai.
         try{
             const userToRegister = new User({
@@ -68,13 +64,12 @@ const authController = {
             data = await userToRegister.save();
             // Token Generation;
             // username:data.username;
-            accessToken = JWTService.signAccessToken({_id : data._id,},"15s");  // payload and expiry time 
+            accessToken = JWTService.signAccessToken({_id :data._id},"15s");  // payload and expiry time 
             refreshToken = JWTService.signRefreshToken({_id:data._id},"60m");  //  payload and expiry time 
         }
         catch(error){
             return next(error)
         }
-
         // Store refreshToken in db
         await JWTService.storeRefreshToken(refreshToken,data._id);
         // ab hum cookie ma apnay token send kreingay
@@ -122,8 +117,7 @@ const authController = {
             }
             // match password
             // req.body.password -> hash -> match
-
-            const match = await bcrypt.compare(password, user.password);
+            const match = await bcrypt.compare(password,user.password);
             if(!match){
                 const error = {
                     status:401,
@@ -131,14 +125,11 @@ const authController = {
                 }
                 return next(error)
             }
-
         }catch(error){
             return next(error)
         }
-
-        const accessToken  = JWTService.signAccessToken({_id:user._id},"15s")
+        const accessToken = JWTService.signAccessToken({_id:user._id},"15s")
         const RefreshTokenNew = JWTService.signRefreshToken({_id:user._id},"60m")
-
         // Update Refresh Token in Database
         await Token.updateOne(
             { userId: user._id },
@@ -149,20 +140,16 @@ const authController = {
         // upsert: true ka matlab:
         // Agar userId ka record exist karta hai → update kar do.
         // Agar nahi karta → naya record bana do.
-
         resp.cookie("accessToken", accessToken, {
             maxAge: 1000 * 60 * 60 * 24,
             httpOnly: true,
         })
-
         // Tokens ko cookies me save karte hain taake frontend ko bar bar bhejne ki zarurat na ho.
         // httpOnly: true → iska matlab ye cookies browser JS se access nahi kar sakta (security ke liye).
-
         resp.cookie("refreshToken",RefreshTokenNew,{
             maxAge:1000 * 60 * 60 * 24,
             httpOnly:true,
         })
-
         const dto = new UserDto(user)
         return resp.status(201).json({Data:dto,auth:true})
     },

@@ -4,7 +4,7 @@ const cors = require("cors")
 const dbConnect = require("./db/index")
 const {PORT} = require("./config/index")
 const router = require("./routes/index")
-const cookieParser = require("cookie-parser");
+const cookieParser   = require("cookie-parser");
 const errorHandler = require("./middlewares/errorHandle")
 
 const corsOption = {
