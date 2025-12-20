@@ -128,9 +128,11 @@ const authController = {
         }catch(error){
             return next(error)
         }
+
         const accessToken = JWTService.signAccessToken({_id:user._id},"15s")
         const RefreshTokenNew = JWTService.signRefreshToken({_id:user._id},"60m")
         // Update Refresh Token in Database
+        
         await Token.updateOne(
             { userId: user._id },
             { token: RefreshTokenNew },
@@ -140,6 +142,7 @@ const authController = {
         // upsert: true ka matlab:
         // Agar userId ka record exist karta hai → update kar do.
         // Agar nahi karta → naya record bana do.
+
         resp.cookie("accessToken", accessToken, {
             maxAge: 1000 * 60 * 60 * 24,
             httpOnly: true,
@@ -166,7 +169,7 @@ const authController = {
         resp.clearCookie("refreshToken");
         // responce 
         resp.status(200).json({user:null,auth:false})
-        // is responce say hmein client side par pta chlaga user authentic hay ya UnAuthentic hay 
+        // is responce say hmein client side par pta chlaga user authentic hay ya UnAuthentic hay
     },
     async Refresh(req,resp,next){
         // get refreshtoken from cookies
