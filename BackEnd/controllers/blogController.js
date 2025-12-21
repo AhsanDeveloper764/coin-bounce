@@ -55,7 +55,6 @@ const blogController = {
         }catch(error){
             return next(error)
         }
-
         const blogdto = new BlogDto(newBlog);
         return resp.status(201).json({blog:blogdto})
 

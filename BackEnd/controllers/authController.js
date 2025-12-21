@@ -64,7 +64,7 @@ const authController = {
             data = await userToRegister.save();
             // Token Generation;
             // username:data.username;
-            accessToken = JWTService.signAccessToken({_id :data._id},"15s");  // payload and expiry time 
+            accessToken = JWTService.signAccessToken({_id :data._id},"30m");  // payload and expiry time 
             refreshToken = JWTService.signRefreshToken({_id:data._id},"60m");  //  payload and expiry time 
         }
         catch(error){
@@ -129,7 +129,7 @@ const authController = {
             return next(error)
         }
 
-        const accessToken = JWTService.signAccessToken({_id:user._id},"15s")
+        const accessToken = JWTService.signAccessToken({_id:user._id},"30m")
         const RefreshTokenNew = JWTService.signRefreshToken({_id:user._id},"60m")
         // Update Refresh Token in Database
         
@@ -201,7 +201,7 @@ const authController = {
         // generate new token
         // update DB, return responce
         try{
-            const accessToken = JWTService.signAccessToken({_id:id},"15s")
+            const accessToken = JWTService.signAccessToken({_id:id},"30m")
             const refToken = JWTService.signRefreshToken({_id:id},"60m")
             await Token.updateOne({ userId: id }, { token: refToken });
             console.log("DB Refresh Token Updated");

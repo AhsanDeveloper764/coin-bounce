@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 // Schema ko destructure kreingay mongoose mai say
 const {Schema} = mongoose;
 const blogSchema = new Schema({
@@ -11,7 +10,6 @@ const blogSchema = new Schema({
 },
  {timestamps:true}
 )
-
 const blogModel = mongoose.model("Blog",blogSchema,"blog")
 // Blog = modelName
 // blog = collectionName
