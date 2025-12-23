@@ -4,8 +4,49 @@ const blog = require("../models/blog");
 const comment = require("../models/comment");
 const BlogDetails = require("../dto/blog-details");
 const BlogDto = require("../dto/blog");
-const {BACKEND_SERVER_PATH} = require('../config/index');
+const {BACKEND_SERVER_PATH,cloudName,apikey,apiSecret} = require('../config/index');
 const mongodbIdPattern = /^[a-fA-F0-9]{24}$/
+const cloudinary = require("cloudinary");
+
+(async function() {
+    // Configuration
+    cloudinary.config({ 
+        cloud_name: cloudName, 
+        api_key: apikey, 
+        api_secret: apiSecret 
+    });
+    
+    // Upload an image
+     const uploadResult = await cloudinary.uploader
+       .upload(
+           'https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg', {
+               public_id: 'shoes',
+           }
+       )
+       .catch((error) => {
+           console.log(error);
+       });
+    
+    console.log(uploadResult);
+    
+    // Optimize delivery by resizing and applying auto-format and auto-quality
+    const optimizeUrl = cloudinary.url('shoes', {
+        fetch_format: 'auto',
+        quality: 'auto'
+    });
+    
+    console.log(optimizeUrl);
+    
+    // Transform the image: auto-crop to square aspect_ratio
+    const autoCropUrl = cloudinary.url('shoes', {
+        crop: 'auto',
+        gravity: 'auto',
+        width: 500,
+        height: 500,
+    });
+    
+    console.log(autoCropUrl);    
+})();
 
 // login say jo id mili hay wo blog ka author hoga
 const blogController = {
@@ -30,14 +71,11 @@ const blogController = {
             return next(error);
         }
         const {title,author,content,photo} = req.body;
-        // photo ko handle krna hay
-        // read as buffer
-        const buffer = Buffer.from(photo.replace(/^data:image\/(png|jpg|jpeg);base64,/,""),"base64") // img kee encoding base64 type kee hay 
-        // allot a random name
-        const imgPath = `${Date.now()}-${author}.png`
-        // save locally
+        // photo ko handle krna hay cloudinary kay sath
+        // save to cloudinary
+        let response;
         try {
-            fs.writeFileSync(`storage/${imgPath}`, buffer)    
+            response = await cloudinary.uploader.upload(photo); // when image is uploaded at cloudinary so cloudinary send a url of img
         }
         catch(error){
             return next(error)
@@ -49,7 +87,7 @@ const blogController = {
                 title,
                 author,
                 content,
-                photoPath: `${BACKEND_SERVER_PATH}/storage/${imgPath}`
+                photoPath: response.url
             })
             await newBlog.save() 
         }catch(error){
@@ -131,19 +169,23 @@ const blogController = {
         fs.unlinkSync(`storage/${previousPhoto}`);
 
         // handle new photo
-        const buffer = Buffer.from(photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""), "base64");
-
-        const imgPath = `${Date.now()}-${author}.png`;
-
+        // const buffer = Buffer.from(photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""), "base64");
+        // const imgPath = `${Date.now()}-${author}.png`;
+        let response;
         try {
-            fs.writeFileSync(`storage/${imgPath}`, buffer);
+            response = await cloudinary.uploader.upload(photo);
+            // fs.writeFileSync(`storage/${imgPath}`, buffer);
         } catch (error) {
             return next(error);
         }
 
         await blog.updateOne(
             { _id: blogId },
-            { title, content, photoPath: `${BACKEND_SERVER_PATH}/storage/${imgPath}` },
+            { 
+                title, 
+                content, 
+                photoPath: response.url
+            },
         );
     } else {
         await blog.updateOne({ _id: blogId }, { title, content });
@@ -175,3 +217,34 @@ const blogController = {
     }
 }
 module.exports = blogController
+
+
+
+// locallystorge for file uploading
+// read as buffer
+//     const buffer = Buffer.from(photo.replace(/^data:image\/(png|jpg|jpeg);base64,/,""),"base64") // img kee encoding base64 type kee hay 
+//     // allot a random name
+//     const imgPath = `${Date.now()}-${author}.png`
+//     // save locally
+//     try {
+//         fs.writeFileSync(`storage/${imgPath}`, buffer)    
+//     }
+//     catch(error){
+//         return next(error)
+//     }
+//     // save blog in databse
+//     let newBlog;
+//     try{
+//         newBlog = new blog({
+//             title,
+//             author,
+//             content,
+//             photoPath: `${BACKEND_SERVER_PATH}/storage/${imgPath}`
+//         })
+//         await newBlog.save() 
+//     }catch(error){
+//         return next(error)
+//     }
+//     const blogdto = new BlogDto(newBlog);
+//     return resp.status(201).json({blog:blogdto})
+// },
